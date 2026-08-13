@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>五明菩薩學院大乘解行研經班</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      width: 100%; min-height: 100%; margin: 0;
+      font-family: "Microsoft JhengHei", "Noto Sans TC", Arial, sans-serif;
+    }
+    body { overflow-x: hidden; background-color: #23486b; }
+    button { font-family: inherit; }
+    .page { display: none; width: 100%; min-height: 100vh; }
+    .page.active { display: flex; }
+
+    /* 原首頁設計 */
+    #homePage {
+      position: relative; flex-direction: column; justify-content: center;
+      align-items: center; padding: 40px 20px; overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(226,143,166,.30), transparent 32%),
+        radial-gradient(circle at 82% 78%, rgba(219,176,87,.19), transparent 30%),
+        linear-gradient(135deg, #173b5d 0%, #365f87 46%, #b85f7d 100%);
+    }
+    #homePage::before, #homePage::after {
+      content: ""; position: absolute; border-radius: 50%; pointer-events: none;
+    }
+    #homePage::before {
+      width: 430px; height: 430px; top: -210px; right: -120px;
+      border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04);
+    }
+    #homePage::after {
+      width: 330px; height: 330px; bottom: -170px; left: -90px;
+      border: 1px solid rgba(225,190,113,.20); background: rgba(225,190,113,.06);
+    }
+    .home-card {
+      position: relative; z-index: 1; width: min(1120px, 94%); padding: 72px 55px;
+      text-align: center; border: 1px solid rgba(255,255,255,.22); border-radius: 30px;
+      background: linear-gradient(145deg, rgba(255,255,255,.15), rgba(255,255,255,.07));
+      box-shadow: 0 26px 70px rgba(4,27,44,.38), inset 0 1px 0 rgba(255,255,255,.20);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+    .home-card::before {
+      content: ""; position: absolute; top: 0; left: 50%; width: 36%; height: 4px;
+      border-radius: 0 0 10px 10px;
+      background: linear-gradient(90deg, transparent, #e7c575, transparent);
+      transform: translateX(-50%);
+    }
+    .school-name {
+      margin: 0 0 16px; color: #f0d995; font-size: clamp(22px,3vw,35px);
+      font-weight: 500; letter-spacing: .20em;
+    }
+    .main-title {
+      margin: 0; color: #fff; font-size: clamp(34px,5vw,64px); font-weight: 700;
+      line-height: 1.35; letter-spacing: .08em; text-shadow: 0 4px 18px rgba(0,0,0,.22);
+    }
+    .subtitle {
+      margin: 18px 0 0; color: rgba(255,255,255,.78);
+      font-size: clamp(16px,1.8vw,21px); letter-spacing: .12em;
+    }
+    .title-line {
+      position: relative; width: 120px; height: 3px; margin: 30px auto 42px;
+      border-radius: 20px; background: linear-gradient(90deg,#e28fa6,#e6c26e);
+    }
+    .title-line::before, .title-line::after {
+      content: ""; position: absolute; top: 50%; width: 7px; height: 7px;
+      border-radius: 50%; background: #f0d995; transform: translateY(-50%);
+    }
+    .title-line::before { left: -12px; }
+    .title-line::after { right: -12px; }
+    .button-group {
+      display: flex; justify-content: center; align-items: stretch; flex-wrap: wrap;
+      width: 100%; gap: 24px;
+    }
+    .menu-button {
+      position: relative; display: inline-flex; justify-content: center; align-items: center;
+      width: 310px; min-height: 82px; padding: 17px 30px;
+      border: 1px solid rgba(255,255,255,.55); border-radius: 19px; color: #fff;
+      font-size: clamp(20px,2.1vw,27px); font-weight: 700; letter-spacing: .06em;
+      cursor: pointer; overflow: hidden; box-shadow: 0 13px 28px rgba(9,30,48,.30);
+      transition: transform .25s, box-shadow .25s, filter .25s;
+    }
+    .menu-button::before {
+      content: ""; position: absolute; top: 0; left: -90%; width: 60%; height: 100%;
+      background: linear-gradient(110deg,transparent,rgba(255,255,255,.20),transparent);
+      transform: skewX(-20deg); transition: left .55s;
+    }
+    .menu-button:hover::before { left: 130%; }
+    .menu-button:hover {
+      transform: translateY(-6px); filter: brightness(1.08);
+      box-shadow: 0 19px 36px rgba(7,26,42,.40);
+    }
+    .button-one { background: linear-gradient(135deg,#285e91,#347ca0); }
+    .button-two { background: linear-gradient(135deg,#b65375,#e28fa6); }
+    .button-three { background: linear-gradient(135deg,#9fb5d2,#c2d1e5); }
+    .button-four { background: linear-gradient(135deg,#b9879b,#d8b3c2); }
+    .button-icon {
+      display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0;
+      width: 39px; height: 39px; margin-right: 13px;
+      border: 1px solid rgba(255,255,255,.42); border-radius: 50%;
+      background: rgba(255,255,255,.14); font-size: 19px;
+    }
+
+    /* 新圖片式簡報播放器 */
+    #viewerPage {
+      flex-direction: column; height: 100vh; min-height: 100vh;
+      overflow: hidden; background: #142c40;
+    }
+    .presentation-header {
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
+      width: 100%; min-height: 72px; padding: 10px 22px; color: #fff;
+      background: linear-gradient(90deg,#214d72,#b85f7d); border-bottom: 3px solid #d8b661;
+      box-shadow: 0 4px 14px rgba(0,0,0,.25); z-index: 2;
+    }
+    .presentation-title {
+      grid-column: 2; margin: 0; font-size: clamp(18px,2.3vw,28px);
+      font-weight: 700; letter-spacing: .06em; text-align: center;
+    }
+    .page-counter { grid-column: 3; justify-self: end; font-weight: 700; }
+    .slide-stage {
+      flex: 1; min-height: 0; display: flex; justify-content: center; align-items: center;
+      padding: 14px; overflow: hidden; background: #0b1823;
+    }
+    .slide-image {
+      display: block; max-width: 100%; max-height: 100%; object-fit: contain;
+      background: #fff; box-shadow: 0 8px 30px rgba(0,0,0,.45);
+    }
+    .player-controls {
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+      gap: 14px; padding: 12px 20px; background: #173b5d;
+      border-top: 1px solid rgba(255,255,255,.16);
+    }
+    .control-button {
+      min-width: 140px; padding: 11px 22px; border: 1px solid rgba(255,255,255,.65);
+      border-radius: 12px; color: #fff; background: rgba(255,255,255,.12);
+      font-size: 17px; font-weight: 700; cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+    .control-button:hover:not(:disabled) {
+      background: rgba(255,255,255,.25); transform: translateY(-2px);
+    }
+    .control-button:disabled { opacity: .38; cursor: not-allowed; }
+    #previousButton { justify-self: end; }
+    #homeButton { background: linear-gradient(135deg,#b65375,#d97996); }
+    #nextButton { justify-self: start; }
+    .menu-button:focus-visible, .control-button:focus-visible {
+      outline: 4px solid rgba(240,217,149,.85); outline-offset: 4px;
+    }
+    .error-message { color: #fff; text-align: center; line-height: 1.8; }
+
+    @media (min-width: 901px) {
+      .button-group { flex-wrap: nowrap; gap: 18px; }
+      .menu-button {
+        width: calc((100% - 54px)/4); min-width: 0; min-height: 74px;
+        padding: 14px 16px; font-size: clamp(17px,1.45vw,22px); letter-spacing: .03em;
+      }
+      .button-icon { width: 34px; height: 34px; margin-right: 9px; font-size: 16px; }
+    }
+    @media (max-width: 700px) {
+      #homePage { padding: 25px 14px; }
+      .home-card { width: 96%; padding: 50px 22px; border-radius: 23px; }
+      .school-name { letter-spacing: .10em; }
+      .main-title { letter-spacing: .04em; }
+      .subtitle { letter-spacing: .05em; }
+      .button-group { gap: 17px; }
+      .menu-button { width: 100%; min-height: 70px; padding: 14px 18px; }
+      .button-icon { width: 35px; height: 35px; margin-right: 10px; }
+      .presentation-header { min-height: 60px; padding: 8px 12px; }
+      .presentation-title {
+        max-width: 160px; overflow: hidden; text-overflow: ellipsis;
+        white-space: nowrap; font-size: 16px;
+      }
+      .page-counter { font-size: 14px; }
+      .slide-stage { padding: 7px; }
+      .player-controls { gap: 7px; padding: 9px 8px; }
+      .control-button { min-width: 0; width: 100%; padding: 10px 5px; font-size: 14px; }
+    }
+    @media (max-width: 430px) {
+      .home-card { padding: 42px 17px; }
+      .school-name { font-size: 20px; }
+      .menu-button { font-size: 19px; }
+    }
+  </style>
+</head>
+<body>
+  <main id="homePage" class="page active">
+    <section class="home-card">
+      <p class="school-name">五明菩薩學院</p>
+      <h1 class="main-title">大乘解行研經班</h1>
+      <p class="subtitle">系統操作說明</p>
+      <div class="title-line"></div>
+      <div class="button-group">
+        <button type="button" class="menu-button button-three" onclick="openPresentation(1)">
+          <span class="button-icon">▶</span><span>學員請假申請</span>
+        </button>
+        <button type="button" class="menu-button button-two" onclick="openPresentation(2)">
+          <span class="button-icon">✉</span><span>修改電子郵件</span>
+        </button>
+        <button type="button" class="menu-button button-four" onclick="openPresentation(3)">
+          <span class="button-icon">ⓘ</span><span>訊息公告</span>
+        </button>
+        <button type="button" class="menu-button button-one" onclick="openPresentation(4)">
+          <span class="button-icon">▶</span><span>補課系統</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <section id="viewerPage" class="page" aria-label="簡報播放頁">
+    <header class="presentation-header">
+      <h2 id="presentationTitle" class="presentation-title">簡報</h2>
+      <div id="pageCounter" class="page-counter" aria-live="polite">1 / 1</div>
+    </header>
+    <main id="slideStage" class="slide-stage">
+      <img id="slideImage" class="slide-image" src="" alt="簡報投影片">
+      <p id="errorMessage" class="error-message" hidden></p>
+    </main>
+    <nav class="player-controls" aria-label="簡報控制">
+      <button id="previousButton" class="control-button" type="button">← 上一頁</button>
+      <button id="homeButton" class="control-button" type="button">⌂ 回首頁</button>
+      <button id="nextButton" class="control-button" type="button">下一頁 →</button>
+    </nav>
+  </section>
+
+  <script>
+    /* 只需依照實際圖片頁數修改 totalPages。若使用 PNG，改 extension: "png"。 */
+    const presentations = {
+      1: { title: "學員請假申請", folder: "deck1", totalPages: 10, extension: "jpg" },
+      2: { title: "修改電子郵件", folder: "deck2", totalPages: 10, extension: "jpg" },
+      3: { title: "訊息公告", folder: "deck3", totalPages: 10, extension: "jpg" },
+      4: { title: "補課系統操作", folder: "deck4", totalPages: 10, extension: "jpg" }
+    };
+
+    const homePage = document.getElementById("homePage");
+    const viewerPage = document.getElementById("viewerPage");
+    const titleElement = document.getElementById("presentationTitle");
+    const counterElement = document.getElementById("pageCounter");
+    const slideImage = document.getElementById("slideImage");
+    const errorMessage = document.getElementById("errorMessage");
+    const previousButton = document.getElementById("previousButton");
+    const nextButton = document.getElementById("nextButton");
+    const homeButton = document.getElementById("homeButton");
+
+    let currentPresentation = null;
+    let currentPage = 1;
+
+    function slidePath(page) {
+      const filename = String(page).padStart(3, "0");
+      return `slides/${currentPresentation.folder}/${filename}.${currentPresentation.extension}`;
+    }
+
+    function renderSlide() {
+      errorMessage.hidden = true;
+      slideImage.hidden = false;
+      slideImage.src = slidePath(currentPage);
+      slideImage.alt = `${currentPresentation.title}，第 ${currentPage} 頁`;
+      counterElement.textContent = `${currentPage} / ${currentPresentation.totalPages}`;
+      previousButton.disabled = currentPage === 1;
+      nextButton.disabled = currentPage === currentPresentation.totalPages;
+
+      if (currentPage < currentPresentation.totalPages) {
+        const preload = new Image();
+        preload.src = slidePath(currentPage + 1);
+      }
+    }
+
+    function openPresentation(number) {
+      currentPresentation = presentations[number];
+      if (!currentPresentation) return;
+      currentPage = 1;
+      titleElement.textContent = currentPresentation.title;
+      homePage.classList.remove("active");
+      viewerPage.classList.add("active");
+      document.body.style.overflow = "hidden";
+      renderSlide();
+    }
+
+    function showHome() {
+      slideImage.src = "";
+      viewerPage.classList.remove("active");
+      homePage.classList.add("active");
+      document.body.style.overflow = "";
+      currentPresentation = null;
+      window.scrollTo(0, 0);
+    }
+
+    function changePage(change) {
+      if (!currentPresentation) return;
+      const newPage = currentPage + change;
+      if (newPage < 1 || newPage > currentPresentation.totalPages) return;
+      currentPage = newPage;
+      renderSlide();
+    }
+
+    previousButton.addEventListener("click", () => changePage(-1));
+    nextButton.addEventListener("click", () => changePage(1));
+    homeButton.addEventListener("click", showHome);
+
+    slideImage.addEventListener("error", function () {
+      slideImage.hidden = true;
+      errorMessage.hidden = false;
+      errorMessage.textContent = `找不到第 ${currentPage} 頁圖片。請檢查 ${slidePath(currentPage)} 是否存在。`;
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (!currentPresentation) return;
+      if (event.key === "ArrowLeft" || event.key === "PageUp") changePage(-1);
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+        event.preventDefault(); changePage(1);
+      }
+      if (event.key === "Home") { currentPage = 1; renderSlide(); }
+      if (event.key === "End") { currentPage = currentPresentation.totalPages; renderSlide(); }
+      if (event.key === "Escape") showHome();
+    });
+  </script>
+</body>
+</html>
