@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>五明菩薩學院大乘解行研經班</title>
   <style>
     * { box-sizing: border-box; }
@@ -126,10 +126,12 @@
     .slide-stage {
       flex: 1; min-height: 0; display: flex; justify-content: center; align-items: center;
       padding: 14px; overflow: hidden; background: #0b1823;
+      touch-action: none; user-select: none; -webkit-user-select: none;
     }
     .slide-image {
       display: block; max-width: 100%; max-height: 100%; object-fit: contain;
       background: #fff; box-shadow: 0 8px 30px rgba(0,0,0,.45);
+      transform-origin: center center; will-change: transform;
     }
     .player-controls {
       display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
@@ -252,6 +254,7 @@
 
     const homePage = document.getElementById("homePage");
     const viewerPage = document.getElementById("viewerPage");
+    const slideStage = document.getElementById("slideStage");
     const titleElement = document.getElementById("presentationTitle");
     const counterElement = document.getElementById("pageCounter");
     const slideImage = document.getElementById("slideImage");
@@ -262,6 +265,29 @@
 
     let currentPresentation = null;
     let currentPage = 1;
+    let imageScale = 1;
+    let imageX = 0;
+    let imageY = 0;
+    let pinchStartDistance = 0;
+    let pinchStartScale = 1;
+    const activePointers = new Map();
+
+    function applyImageTransform() {
+      slideImage.style.transform = `translate(${imageX}px, ${imageY}px) scale(${imageScale})`;
+    }
+
+    function resetImageZoom() {
+      imageScale = 1;
+      imageX = 0;
+      imageY = 0;
+      activePointers.clear();
+      applyImageTransform();
+    }
+
+    function pointerDistance() {
+      const points = [...activePointers.values()];
+      return Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+    }
 
     /* iPhone Safari 的網址列會動態改變可視高度；以實際視窗高度校正播放器。 */
     function updateAppHeight() {
@@ -283,6 +309,7 @@
     }
 
     function renderSlide() {
+      resetImageZoom();
       errorMessage.hidden = true;
       slideImage.hidden = false;
       slideImage.src = slidePath(currentPage);
@@ -329,6 +356,43 @@
     previousButton.addEventListener("click", () => changePage(-1));
     nextButton.addEventListener("click", () => changePage(1));
     homeButton.addEventListener("click", showHome);
+
+    /* 雙指縮放只作用於投影片；放大後可用單指拖曳。 */
+    slideStage.addEventListener("pointerdown", function (event) {
+      slideStage.setPointerCapture(event.pointerId);
+      activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      if (activePointers.size === 2) {
+        pinchStartDistance = pointerDistance();
+        pinchStartScale = imageScale;
+      }
+    });
+
+    slideStage.addEventListener("pointermove", function (event) {
+      const previous = activePointers.get(event.pointerId);
+      if (!previous) return;
+
+      if (activePointers.size === 1 && imageScale > 1) {
+        imageX += event.clientX - previous.x;
+        imageY += event.clientY - previous.y;
+      }
+
+      activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+      if (activePointers.size === 2 && pinchStartDistance > 0) {
+        imageScale = Math.min(4, Math.max(1, pinchStartScale * pointerDistance() / pinchStartDistance));
+        if (imageScale === 1) { imageX = 0; imageY = 0; }
+      }
+      applyImageTransform();
+    });
+
+    function endPointer(event) {
+      activePointers.delete(event.pointerId);
+      if (activePointers.size < 2) pinchStartDistance = 0;
+      if (imageScale <= 1) resetImageZoom();
+    }
+
+    slideStage.addEventListener("pointerup", endPointer);
+    slideStage.addEventListener("pointercancel", endPointer);
 
     slideImage.addEventListener("error", function () {
       slideImage.hidden = true;
