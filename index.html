@@ -225,7 +225,7 @@
   </section>
 
   <script>
-    /* 只需依照實際圖片頁數修改 totalPages。若使用 PNG，改 extension: "png"。 */
+    /* 圖片請命名為 1.png、2.png、3.png……，並依照實際圖片頁數修改 totalPages。 */
     const presentations = {
       1: { title: "學員請假申請", folder: "deck1", totalPages: 10, extension: "png" },
       2: { title: "修改電子郵件", folder: "deck2", totalPages: 10, extension: "png" },
@@ -247,8 +247,7 @@
     let currentPage = 1;
 
     function slidePath(page) {
-      const filename = String(page).padStart(3, "0");
-      return `slides/${currentPresentation.folder}/${filename}.${currentPresentation.extension}`;
+      return `slides/${currentPresentation.folder}/${page}.${currentPresentation.extension}`;
     }
 
     function renderSlide() {
